@@ -4,9 +4,19 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 the [Redux](https://redux.js.org/), [Redux Toolkit](https://redux-toolkit.js.org/)
 and [Material Tailwind Kit](https://demos.creative-tim.com/material-tailwind-kit-react/#/?ref=readme-mtkr) TS template.
 
+## This project requires Node 14 or higher to work
+
 ## Available Scripts
 
 In the project directory, you can run:
+
+### `npm ci`
+
+Install packages from the included package-lock.json file as it was tested.
+
+### `npm install`
+
+Install packages from the included package.json file.
 
 ### `npm start`
 
