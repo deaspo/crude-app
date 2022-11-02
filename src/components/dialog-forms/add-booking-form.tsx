@@ -10,6 +10,7 @@ import { CommonDialog } from "components/dialog";
 import { FormButtonContainer, formClasses, GridItemContainer } from "./dialog-forms-styles";
 import { DialogFormError } from "./dialog-form-error";
 import { DatePickerAdapter } from "./date-picker-adapter";
+import "react-datepicker/dist/react-datepicker.css";
 
 const CreateForm = Form as React.FC<FormProps>;
 
@@ -59,7 +60,7 @@ export const AddBookingForm = ({open, handleClose}: AddBookingFormProps) => {
                             name={keyBookingDate}
                             component={DatePickerAdapter}
                             dateFormat="dd-MM-yyyy"
-                            placeholder="Booking Date"
+                            placeholderText="Booking Date"
                         />
                     </GridItemContainer>
                     <GridItemContainer className={formClasses.gridItem} item>
@@ -95,6 +96,11 @@ export const AddBookingForm = ({open, handleClose}: AddBookingFormProps) => {
                     <Grid item>
                         <FormButtonContainer className={formClasses.buttonContainer} data-testid="submit-button">
                             <Button
+                                onClick={handleClose}
+                            >
+                                Close
+                            </Button>
+                            <Button
                                 type="submit"
                             >
                                 Submit
@@ -126,7 +132,7 @@ export const AddBookingForm = ({open, handleClose}: AddBookingFormProps) => {
     return (
         <CommonDialog
             open={open}
-            handleClose={handleClose}
+            title={"Add a New Booking"}
         >
             <CreateForm
                 onSubmit={handleSubmitForm}
@@ -135,90 +141,3 @@ export const AddBookingForm = ({open, handleClose}: AddBookingFormProps) => {
         </CommonDialog>
     );
 }
-
-/*export const AddBookingForm = ({open, handleClose}: AddBookingFormProps) => {
-    const dispatch = useAppDispatch();
-    const locations = useAppSelector(allLocations);
-    
-    const [hours, setHours] = useState(0);
-    const [title, setTitle] = useState('');
-    const [date, setDate] = useState('');
-    const [bookingPrice, setBookingPrice] = useState(0);
-    const [locationId, setLocationId] = useState('');
-    
-    const onTitleChanged = (event: React.ChangeEvent<HTMLInputElement>) => setTitle(event.target.value);
-    const onHoursChanged = (event: React.ChangeEvent<HTMLInputElement>) => setHours(Number(event.target.value));
-    const onDateChanged = (event: React.ChangeEvent<HTMLInputElement>) => setDate(event.target.value);
-    const onPriceChanged = (event: React.ChangeEvent<HTMLInputElement>) => setBookingPrice(Number(event.target.value));
-    const onLocationChanged = (event: React.ChangeEvent<HTMLSelectElement>) => setLocationId(event.target.value);
-    
-    const canSave = Boolean(title) && Boolean(hours) && Boolean(locationId);
-    
-    const onSubmit = () => {
-        if (canSave) {
-            dispatch(
-                bookingAdded(hours, title, date, bookingPrice, locationId)
-            )
-            setHours(0);
-            setTitle('');
-            setDate('');
-            setBookingPrice(0);
-            setLocationId('');
-            handleClose();
-        }
-    }
-    
-    
-    const locationsOptions = locations.map(location => (
-        <option key={location.id} value={location.id}>{location.location}</option>
-    ))
-    
-    return (
-        <CommonDialog
-            open={open}
-            handleClose={handleClose}
-        >
-            <h2>Add New Booking</h2>
-            <form>
-                <label htmlFor="bookingContent"> Title</label>
-                <input
-                    type="text"
-                    id="bookingContent"
-                    name="bookingContent"
-                    value={title}
-                    onChange={onTitleChanged}
-                />
-                <label htmlFor="party">Enter a date and time for your booking:</label>
-                <input
-                    id="bookingDate"
-                    type="datetime-local"
-                    name="bookingDate"
-                    value={date}
-                    onChange={onDateChanged}
-                />
-                <label htmlFor="bookingHours"> Hours Booked</label>
-                <input
-                    type="number"
-                    id="bookingHours"
-                    name="bookingHours"
-                    value={hours}
-                    onChange={onHoursChanged}
-                />
-                <label htmlFor="bookingHours"> Booking Price</label>
-                <input
-                    type="number"
-                    id="bookingPrice"
-                    name="bookingPrice"
-                    value={bookingPrice}
-                    onChange={onPriceChanged}
-                />
-                <label htmlFor="bookingLocation"> Booking Location</label>
-                <select id="bookingLocation" value={locationId} onChange={onLocationChanged}>
-                    <option value=""/>
-                    {locationsOptions}
-                </select>
-                <button disabled={!canSave} onClick={onSubmit} type="button"> Save Booking</button>
-            </form>
-        </CommonDialog>
-    );
-}*/

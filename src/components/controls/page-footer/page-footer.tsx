@@ -9,15 +9,15 @@ export const PageFooter = () => {
     return (
         <footer className="relative bg-gray-100 pt-8 pb-6 bottom-0 right-0 left-0">
             <div className="container max-w-7xl mx-auto px-4">
-                <div className="flex flex-wrap text-center lg:text-left pt-6">
+                <div className="flex flex-wrap text-center lg:text-left">
                     <div className="w-full lg:w-6/12 px-4">
                         <h5 color="gray">Crude App</h5>
-                        <div className="mt-4">
+                        <div>
                             <Typography variant="lead" sx={{color: "blueGray"}}>
                                 Easy to use app for booking hours on a project.
                             </Typography>
                         </div>
-                        <div className="flex gap-2 mt-6 md:justify-start md:mb-0 mb-8 justify-center">
+                        <div className="flex gap-2 mt-6 lg:justify-start md:mb-0 mb-8 justify-center">
                             <a
                                 href="https://twitter.com/kidiwalogha"
                                 className="grid place-items-center bg-white text-blue-400 shadow-md font-normal h-10 w-10 items-center justify-center align-center rounded-full outline-none focus:outline-none"

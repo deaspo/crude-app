@@ -5,7 +5,7 @@ import React from "react";
 import { CommonDialog } from "components/dialog";
 import { DialogFormError } from "./dialog-form-error";
 import { DatePickerAdapter } from "./date-picker-adapter";
-import { Button, Dialog, DialogContent, Grid } from '@mui/material';
+import { Button, Grid } from '@mui/material';
 import { parseISO } from 'date-fns';
 
 import { Field, Form, FormProps, FormRenderProps } from "react-final-form";
@@ -35,6 +35,7 @@ export const EditBookingForm = ({open, handleClose, bookingId}: EditBookingFormP
             <CommonDialog
                 open={open}
                 handleClose={handleClose}
+                title={"Error"}
             >
                 <h2> Booking not found!</h2>
             </CommonDialog>
@@ -155,6 +156,11 @@ export const EditBookingForm = ({open, handleClose, bookingId}: EditBookingFormP
                     <Grid item>
                         <FormButtonContainer className={formClasses.buttonContainer} data-testid="submit-button">
                             <Button
+                                onClick={handleClose}
+                            >
+                                Close
+                            </Button>
+                            <Button
                                 type="submit"
                             >
                                 Submit
@@ -167,16 +173,14 @@ export const EditBookingForm = ({open, handleClose, bookingId}: EditBookingFormP
     }
     
     return (
-        <Dialog
+        <CommonDialog
             open={open}
-            onClose={handleClose}
+            title={"Edit Booking Info"}
         >
-            <DialogContent>
-                <CreateForm
-                    onSubmit={handleSubmitForm}
-                    render={renderForm}
-                />
-            </DialogContent>
-        </Dialog>
+            <CreateForm
+                onSubmit={handleSubmitForm}
+                render={renderForm}
+            />
+        </CommonDialog>
     );
 }

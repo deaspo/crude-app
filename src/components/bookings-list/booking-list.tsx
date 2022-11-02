@@ -79,7 +79,12 @@ export const BookingsList = ({handleClickMore}: BookingListProps) => {
     });
     
     return (
-        <List>
+        <List sx={{
+            width: '100%',
+            overflow: 'auto',
+            maxHeight: "calc(100vh/2)",
+            padding: "8px"
+        }}>
             {renderedRowItem}
         </List>
     )

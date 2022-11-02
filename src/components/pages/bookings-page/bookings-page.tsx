@@ -8,7 +8,7 @@ import { AddBookingForm, EditBookingForm } from 'components/dialog-forms'
 import { BookingsList } from "components/bookings-list";
 import { BookingProps, deleteBooking } from "features";
 
-import { AddText, bookingsPageClasses, BottomArea, FabContainer } from "./bookings-page-styles";
+import { AddText, bookingsPageClasses, FabContainer } from "./bookings-page-styles";
 import { useAppDispatch } from "redux-tools";
 import { NavBar, PageFooter } from "components/controls";
 
@@ -73,27 +73,24 @@ export const BookingsPage = () => {
             </header>
             <main>
                 <div className="mx-auto max-w-7xl py-6">
-                    <Paper style={{maxHeight: "800px", overflow: "auto", padding: "8px"}}>
-                        <BookingsList
-                            handleClickMore={handleClickMore}
-                        />
-                    </Paper>
-                    <BottomArea className={bookingsPageClasses.bottomArea} data-testid="bottom-area">
-                        <FabContainer className={bookingsPageClasses.fabContainer} data-testid="fab-container">
-                            <Fab
-                                sx={{bottom: "auto", position: "relative", right: "auto"}}
-                                component="span"
-                                variant="extended"
-                                size="large"
-                                onClick={handleOpenAddDialog}
-                            >
-                                <AddText className={bookingsPageClasses.addText} data-testid="fab-icon">
-                                    <AddIcon/>
-                                </AddText>
-                                Add booking
-                            </Fab>
-                        </FabContainer>
-                    </BottomArea>
+                    <BookingsList
+                        handleClickMore={handleClickMore}
+                    />
+                    <FabContainer className={bookingsPageClasses.fabContainer} data-testid="fab-container">
+                        <Fab
+                            sx={{bottom: "auto", position: "relative", right: "auto"}}
+                            component="span"
+                            variant="extended"
+                            size="large"
+                            color="info"
+                            onClick={handleOpenAddDialog}
+                        >
+                            <AddText className={bookingsPageClasses.addText} data-testid="fab-icon">
+                                <AddIcon/>
+                            </AddText>
+                            Add booking
+                        </Fab>
+                    </FabContainer>
                     {openAddDialog &&
                     <AddBookingForm
                         open={openAddDialog}

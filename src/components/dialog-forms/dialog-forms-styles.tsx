@@ -10,7 +10,7 @@ export const formClasses = {
 export const FormButtonContainer = styled('div')(() => ({
     [`&.${formClasses.buttonContainer}`]: {
         display: "flex",
-        justifyContent: "flex-end"
+        justifyContent: "space-between"
     }
 }));
 
