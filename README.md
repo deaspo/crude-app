@@ -2,7 +2,7 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app), using
 the [Redux](https://redux.js.org/), [Redux Toolkit](https://redux-toolkit.js.org/)
-and [Material Tailwind Kit](https://demos.creative-tim.com/material-tailwind-kit-react/#/?ref=readme-mtkr) TS template.
+and [Material Tailwind Kit](https://www.material-tailwind.com/?ref=mtk) TypeScript template.
 
 ## This project requires Node 14 or higher to work
 

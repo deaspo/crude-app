@@ -46,7 +46,7 @@ export const PageFooter = () => {
                     </div>
                     <div className="w-full lg:w-6/12 px-4">
                         <div className="flex flex-wrap items-top">
-                            <div className="w-full lg:w-4/12 px-4 ml-auto md:mb-0 mb-8">
+                            <div className="w-full lg:w-4/12 px-4 ml-auto md:mb-0">
                                     <span className="block uppercase text-gray-900 text-sm font-serif font-medium mb-2">
                                         Useful Links
                                     </span>
