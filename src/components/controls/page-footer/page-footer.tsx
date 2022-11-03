@@ -7,9 +7,9 @@ import FacebookIcon from '@mui/icons-material/Facebook';
 
 export const PageFooter = () => {
     return (
-        <footer className="relative bg-gray-100 pt-8 pb-6 bottom-0 right-0 left-0">
+        <footer className="fixed bg-gray-100 pt-8 pb-0 bottom-0 right-0 left-0">
             <div className="container max-w-7xl mx-auto px-4">
-                <div className="flex flex-wrap text-center lg:text-left">
+                <div className="hidden lg:block flex flex-wrap text-center lg:text-left">
                     <div className="w-full lg:w-6/12 px-4">
                         <h5 color="gray">Crude App</h5>
                         <div>
