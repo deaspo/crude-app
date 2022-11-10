@@ -1,4 +1,5 @@
-import { PropsWithChildren } from "react";
-
-export interface NavBarProps extends PropsWithChildren<{}> {
+export interface NavItem {
+	name: string;
+	href: string;
+	current: boolean;
 }

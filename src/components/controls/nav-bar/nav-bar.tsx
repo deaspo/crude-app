@@ -1,21 +1,35 @@
 import { Disclosure } from '@headlessui/react'
-import React from "react";
-import { NavBarProps } from "./nav-bar-props";
+import React, { useState } from "react";
+import { NavItem } from "./nav-bar-props";
 import Link from '@mui/material/Link';
 import { useNavigate } from "react-router-dom";
-
-const navigation = [
-    {name: 'Dashboard', href: '/', current: true},
-    {name: 'Bookings', href: '/list', current: false},
-    {name: 'FAQ', href: '/faq', current: false},
-]
 
 function classNames(...classes: string[]) {
     return classes.filter(Boolean).join(' ')
 }
 
-export const NavBar = (props: NavBarProps) => {
+const navigation: NavItem[] = [
+    {name: 'Dashboard', href: '/', current: true},
+    {name: 'Bookings', href: '/list', current: false},
+    {name: 'Locations', href: '/locations', current: false},
+    {name: 'FAQ', href: '/faq', current: false},
+]
+
+export const NavBar = () => {
     const navigate = useNavigate();
+    const [navItems, setNavItems] = useState<NavItem[]>(navigation)
+    
+    const itemClick = (navItem: NavItem) => {
+      const items = navItems.filter(item => item.name !== navItem.name).map((item) => {
+          item.current = false;
+          return item;
+      });
+      navItem.current = true;
+      const newItems = [...items, navItem];
+      setNavItems(newItems);
+      navigate(navItem.href);
+    }
+    
     return (
         <Disclosure as="nav" className="bg-gray-800">
             {({open}) => (
@@ -28,7 +42,7 @@ export const NavBar = (props: NavBarProps) => {
                                         <Link
                                             component="button"
                                             key={item.name}
-                                            onClick={() => navigate(item.href)}
+                                            onClick={() => itemClick(item)}
                                             className={classNames(
                                                 item.current
                                                     ? 'bg-gray-900 text-white'
