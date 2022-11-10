@@ -71,6 +71,7 @@ export const AddBookingForm = ({open, handleClose}: AddBookingFormProps) => {
                             component="input"
                             placeholder="Hours Booked"
                             type="text"
+                            validate={required}
                         />
                         <DialogFormError name={keyBookingHours}/>
                     </GridItemContainer>
@@ -88,6 +89,7 @@ export const AddBookingForm = ({open, handleClose}: AddBookingFormProps) => {
                         <Field
                             name={keyBookingLocation}
                             component="select"
+                            validate={required}
                         >
                             <option value=""/>
                             {locationsOptions}
@@ -121,7 +123,11 @@ export const AddBookingForm = ({open, handleClose}: AddBookingFormProps) => {
         const locationId = values[keyBookingLocation];
         
         if (!hours || !title || !locationId) {
-            return {}
+            return {
+                bookingName: "Required",
+                bookingHours: "Required",
+                bookingLocation: "Required",
+            }
         }
         
         dispatch(

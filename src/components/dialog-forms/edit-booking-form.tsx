@@ -52,7 +52,11 @@ export const EditBookingForm = ({open, handleClose, bookingId}: EditBookingFormP
         const locationId = values[keyBookingLocation];
         
         if (!hours || !title || !locationId) {
-            return {}
+            return {
+                bookingName: "Required",
+                bookingHours: "Required",
+                bookingLocation: "Required",
+            }
         }
         
         const canSave = [title, hours, locationId].every(Boolean);
@@ -126,6 +130,7 @@ export const EditBookingForm = ({open, handleClose, bookingId}: EditBookingFormP
                             placeholder="Hours Booked"
                             type="text"
                             initialValue={booking.bookedHours}
+                            validate={required}
                         />
                         <DialogFormError name={keyBookingHours}/>
                     </GridItemContainer>
@@ -145,6 +150,7 @@ export const EditBookingForm = ({open, handleClose, bookingId}: EditBookingFormP
                             name={keyBookingLocation}
                             component="select"
                             initialValue={booking.bookingLocationId}
+                            validate={required}
                         >
                             <option value=""/>
                             {locationsOptions}
