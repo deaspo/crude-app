@@ -37,7 +37,6 @@ export const BookingsPage = () => {
     
     const handleOpenEditDialog = () => {
         if (currentBooking.current) {
-            console.log("currentBooking", currentBooking.current);
             setOpenEditDialog(true);
         }
     }
@@ -97,11 +96,11 @@ export const BookingsPage = () => {
                         handleClose={handleCloseAddDialog}
                     />
                     }
-                    {openEditDialog &&
+                    {openEditDialog && currentBooking.current &&
                     <EditBookingForm
                         open={openEditDialog}
                         handleClose={handleCloseEditDialog}
-                        bookingId={currentBooking.current?.id}
+                        bookingId={currentBooking.current.id}
                     />
                     }
                     {open &&
