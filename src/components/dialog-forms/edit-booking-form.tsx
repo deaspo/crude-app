@@ -14,7 +14,7 @@ import { FormButtonContainer, formClasses, GridItemContainer } from "./dialog-fo
 export interface EditBookingFormProps {
     open: boolean,
     handleClose: () => void;
-    bookingId: string | undefined,
+    bookingId: string,
 }
 
 const CreateForm = Form as React.FC<FormProps>;
@@ -45,8 +45,6 @@ export const EditBookingForm = ({open, handleClose, bookingId}: EditBookingFormP
     const initialDate = parseISO(booking.bookingDate);
     
     const handleSubmitForm = async (values: any): Promise<any> => {
-        console.log(values);
-        
         const title = values[keyBookingName];
         const hours = values[keyBookingHours];
         const date = values[keyBookingDate];
