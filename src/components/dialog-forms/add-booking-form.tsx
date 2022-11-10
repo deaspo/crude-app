@@ -1,5 +1,5 @@
 import React from "react";
-import { bookingAdded } from "features/bookings/bookingsSplice";
+import { addNewBooking } from "features/bookings/bookingsSplice";
 import { allLocations } from "features/locations/locationsSplice";
 import { useAppDispatch, useAppSelector } from "redux-tools/hooks";
 import { Button, Grid } from "@mui/material";
@@ -11,6 +11,7 @@ import { FormButtonContainer, formClasses, GridItemContainer } from "./dialog-fo
 import { DialogFormError } from "./dialog-form-error";
 import { DatePickerAdapter } from "./date-picker-adapter";
 import "react-datepicker/dist/react-datepicker.css";
+import { nanoid } from "@reduxjs/toolkit";
 
 const CreateForm = Form as React.FC<FormProps>;
 
@@ -124,8 +125,21 @@ export const AddBookingForm = ({open, handleClose}: AddBookingFormProps) => {
         }
         
         dispatch(
-            bookingAdded(hours, title, date.toISOString(), bookingPrice, locationId)
-        )
+            addNewBooking(
+                {
+                    bookedHours: hours,
+                    bookingDate: date.toISOString(),
+                    bookingLocationId: locationId,
+                    bookingTitle: title,
+                    id: nanoid(),
+                    postedDate: new Date().toISOString(),
+                    reactions: {
+                        thumbsUp: 0,
+                        thumbsDown: 0
+                    },
+                    bookingPrice: bookingPrice,
+                })
+        ).unwrap()
         handleClose();
     }
     
