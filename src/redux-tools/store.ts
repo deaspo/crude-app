@@ -8,7 +8,7 @@ export const store = configureStore({
         bookings: listReducer,
         locations: locationReducer,
         price: priceReducer
-    },
+    }, devTools: process.env.NODE_ENV !== 'production',
 });
 
 export type AppDispatch = typeof store.dispatch;
