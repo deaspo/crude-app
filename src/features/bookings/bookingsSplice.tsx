@@ -84,7 +84,6 @@ function mockServerAdapter(booking: BookingProps) {
         () => resolve({data: booking}), 500
     ))
 }
-
 function mockGetBookingsData(): Promise<{data:BookingProps[]}> {
     return new Promise<{data:BookingProps[]}>((resolve) => {
         resolve({data:[]})
@@ -108,24 +107,22 @@ export const addNewBooking = createAsyncThunk(
 export const updateBooking = createAsyncThunk(
     'bookings/updateBooking',
     async (initialBooking: BookingProps) => {
-        //const {id} = initialBooking;
         try {
             const response = await mockServerAdapter(initialBooking);
             return response.data;
         } catch (err) {
-            return initialBooking;
+            throw new Error("Unable to update");
         }
     });
 
 export const deleteBooking = createAsyncThunk(
     'bookings/deleteBooking',
     async (initialBooking: BookingProps) => {
-        //const {id} = initialBooking;
         try {
             const response = await mockServerAdapter(initialBooking);
             return response.data;
         } catch (err) {
-            return initialBooking;
+            throw new Error("Unable to delete");
         }
     });
 
@@ -140,34 +137,10 @@ const initialStateAdapter = bookingsAdapter.getInitialState({
 
 export const bookingsSlice = createSlice({
     name: 'bookings',
-    //initialState,
     initialState: initialStateAdapter,
     reducers: {
-       /* bookingAdded: {
-            reducer: (state, action: PayloadAction<BookingProps>) => {
-                state.bookings.push(action.payload)
-            },
-            prepare: (bookedHours: number, bookingTitle: string, bookingDate: string, bookingPrice: number, bookingLocationId: string) => {
-                return {
-                    payload: {
-                        id: nanoid(),
-                        bookedHours: bookedHours,
-                        bookingTitle: bookingTitle,
-                        bookingDate: bookingDate,
-                        bookingPrice: bookingPrice,
-                        bookingLocationId: bookingLocationId,
-                        postedDate: new Date().toISOString(),
-                        reactions: {
-                            thumbsUp: 0,
-                            thumbsDown: 0
-                        },
-                    }
-                }
-            }
-        },*/
         reactionAdded: (state, action) => {
             const {bookingId, reaction} = action.payload;
-            //const existingBooking = state.bookings.find(booking => booking.id === bookingId);
             const existingBooking = state.entities[bookingId];
             if (existingBooking) {
                 existingBooking.reactions[reaction as keyof ReactionType]++;
@@ -181,10 +154,6 @@ export const bookingsSlice = createSlice({
             })
             .addCase(fetchBookings.fulfilled, (state, action) => {
                 state.status = 'succeeded';
-                //state.bookings = state.bookings.concat(initialBookings);
-                //state.bookings = _.union(state.bookings, initialBookings);
-                //state.bookings = initialBookings;
-                //state.bookings = [...new Set([...state.bookings, ...initialBookings])]
                 bookingsAdapter.upsertMany(state, initialBookings)
                 
             })
@@ -197,9 +166,6 @@ export const bookingsSlice = createSlice({
                 thumbsUp: 0,
                 thumbsDown: 0
             }
-            console.log(action.payload);
-            
-            //state.bookings.push(action.payload)
             bookingsAdapter.addOne(state, action.payload)
         }).addCase(updateBooking.fulfilled, (state, action) => {
             if (!action.payload.id) {
@@ -207,19 +173,14 @@ export const bookingsSlice = createSlice({
                 console.log(action.payload)
                 return;
             }
-            const {id} = action.payload;
             action.payload.postedDate = new Date().toISOString();
-            //const bookings = state.bookings.filter(booking => booking.id !== id);
-            //state.bookings = [...bookings, action.payload];
             bookingsAdapter.upsertOne(state, action.payload);
         }).addCase(deleteBooking.fulfilled, (state, action) => {
             if (!action.payload.id) {
                 console.log('Delete could not complete')
-                console.log(action.payload)
                 return;
             }
             const {id} = action.payload;
-            //state.bookings = state.bookings.filter(booking => booking.id !== id);
             bookingsAdapter.removeOne(state, id);
         })
     }
@@ -231,11 +192,9 @@ export const {
     selectIds: selectBookingIds
 } = bookingsAdapter.getSelectors<RootState>(state => state.bookings);
 
-//export const selectAllBookings = (state: RootState) => state.bookings.bookings;
 export const getCount = (state: RootState) => state.bookings.count;
 export const bookingsStatus = (state: RootState) => state.bookings.status;
 export const {reactionAdded} = bookingsSlice.actions;
-//export const selectBookingById = (state: RootState, bookingId: string | undefined) => state.bookings.bookings.find(booking => booking.id === bookingId);
 
 export const selectBookingsByLocation = createSelector(
     [selectAllBookings, (state, locationId: string | undefined) => locationId],
