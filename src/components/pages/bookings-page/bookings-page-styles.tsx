@@ -6,22 +6,6 @@ export const bookingsPageClasses = {
     addText: 'addText'
 }
 
-export const BottomArea = styled('div')(({theme}) => ({
-    [`&.${bookingsPageClasses.bottomArea}`]: {
-        display: "flex",
-        alignItems: "flex-end",
-        margin: theme.spacing(3),
-        pointerEvents: "none",
-        "& *": {
-            pointerEvents: "all"
-        },
-        position: "fixed",
-        right: 0,
-        bottom: 0,
-        zIndex: theme.zIndex.modal
-    }
-}));
-
 export const FabContainer = styled('div')(({theme}) => ({
     [`&.${bookingsPageClasses.fabContainer}`]: {
         display: "flex",
