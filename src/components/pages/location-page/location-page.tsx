@@ -1,24 +1,40 @@
 import {useNavigate, useParams} from "react-router-dom";
-import { ListItemButton, ListItem, List } from "@mui/material";
+import { ListItemButton, ListItem, List, ListItemText } from "@mui/material";
 import { useAppSelector } from "redux-tools";
-import { selectBookingsByLocation, selectLocationsById } from "features";
+import { useGetBookingsByLocationIdQuery, selectLocationsById } from "features";
 import { NavBar, PageFooter } from "components/controls";
 
 export const LocationPage = () => {
 	const {locationId} = useParams();
 	const navigate = useNavigate();
 	const location = useAppSelector(state => selectLocationsById(state, locationId));
-	const bookingsForLocation = useAppSelector(state => selectBookingsByLocation(state,locationId));
 	
-	const renderedRowItems = bookingsForLocation.map((booking, index) => (
-		<ListItem key={index}>
-			<ListItemButton onClick={() => {
-				navigate(`/booking/${booking.id}`)
-			}}>
-				{booking.bookingTitle}
-			</ListItemButton>
-		</ListItem>
-	));
+	let renderedRowItems: JSX.Element[] | null = null;
+	
+	const {
+		data: bookingsForLocation,
+		isLoading,
+		isSuccess,
+		isError,
+		error
+	} = useGetBookingsByLocationIdQuery(locationId);
+	
+	if (isLoading) {
+		renderedRowItems = [<ListItemText key="loading-message">Loading List</ListItemText>]
+	} else if (isSuccess) {
+		const {ids, entities} = bookingsForLocation;
+		renderedRowItems = ids.map((booking, index) => (
+			<ListItem key={index}>
+				<ListItemButton onClick={() => {
+					navigate(`/bookings/${entities[booking]?.id}`)
+				}}>
+					{entities[booking]?.bookingTitle}
+				</ListItemButton>
+			</ListItem>
+		));
+	} else if(isError) {
+		renderedRowItems = [<ListItemText key="error-message">{JSON.stringify(error)}</ListItemText>]
+	}
 	
 	return (
 		<div className="min-h-full">

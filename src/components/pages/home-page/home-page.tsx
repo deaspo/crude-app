@@ -26,7 +26,7 @@ export const HomePage = () => {
                                         <div className="text-gray-800">
                                             <Typography variant="lead">
                                                 CRUD app for “booking hours on project”. Go to the <Link
-                                                component="button" onClick={() => navigate("/list")}> Bookings
+                                                component="button" onClick={() => navigate("/bookings")}> Bookings
                                                 page </Link> to
                                                 start adding new bookings or see already saved bookings
                                             </Typography>

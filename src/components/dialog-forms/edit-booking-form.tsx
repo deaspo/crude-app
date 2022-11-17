@@ -1,5 +1,5 @@
-import { useAppDispatch, useAppSelector } from "redux-tools";
-import { selectBookingById, updateBooking } from "features/bookings/bookingsSplice";
+import { useAppSelector } from "redux-tools";
+import { selectBookingById, useUpdateBookingMutation } from "features/bookings/bookingsSplice";
 import { allLocations } from "features/locations/locationsSplice";
 import React from "react";
 import { CommonDialog } from "components/dialog";
@@ -20,7 +20,7 @@ export interface EditBookingFormProps {
 const CreateForm = Form as React.FC<FormProps>;
 
 export const EditBookingForm = ({open, handleClose, bookingId}: EditBookingFormProps) => {
-    const dispatch = useAppDispatch();
+    const [updateBooking, {isLoading}] = useUpdateBookingMutation();
     const booking = useAppSelector(state => selectBookingById(state, bookingId));
     const locations = useAppSelector(allLocations);
     
@@ -59,13 +59,11 @@ export const EditBookingForm = ({open, handleClose, bookingId}: EditBookingFormP
             }
         }
         
-        const canSave = [title, hours, locationId].every(Boolean);
+        const canSave = [title, hours, locationId].every(Boolean) && !isLoading;
         
         if (canSave) {
             try {
-                //setRequestStatus('pending');
-                dispatch(
-                    updateBooking(
+                await  updateBooking(
                         {
                             id: booking.id,
                             bookedHours: hours,
@@ -73,16 +71,12 @@ export const EditBookingForm = ({open, handleClose, bookingId}: EditBookingFormP
                             bookingDate: date.toISOString(),
                             bookingPrice: bookingPrice,
                             bookingLocationId: locationId,
-                            postedDate: new Date().toISOString(),
                             reactions: booking.reactions
                         }
-                    )
-                ).unwrap()
+                    ).unwrap()
                 handleClose();
             } catch (err) {
                 console.error('Failed to save the booking', err);
-            } finally {
-                //setRequestStatus('idle');
             }
         }
     }

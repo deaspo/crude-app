@@ -1,7 +1,7 @@
 import React from "react";
-import { addNewBooking } from "features/bookings/bookingsSplice";
+import { useAddNewBookingMutation } from "features/bookings/bookingsSplice";
 import { allLocations } from "features/locations/locationsSplice";
-import { useAppDispatch, useAppSelector } from "redux-tools/hooks";
+import { useAppSelector } from "redux-tools/hooks";
 import { Button, Grid } from "@mui/material";
 
 import { Field, Form, FormProps, FormRenderProps } from "react-final-form";
@@ -21,7 +21,7 @@ export interface AddBookingFormProps {
 }
 
 export const AddBookingForm = ({open, handleClose}: AddBookingFormProps) => {
-    const dispatch = useAppDispatch();
+    const [ addNewBooking, {isLoading} ] = useAddNewBookingMutation();
     const locations = useAppSelector(allLocations);
     
     const keyBookingName = "bookingName";
@@ -116,37 +116,37 @@ export const AddBookingForm = ({open, handleClose}: AddBookingFormProps) => {
     }
     
     const handleSubmitForm = async (values: any): Promise<any> => {
-        const title = values[keyBookingName];
-        const hours = values[keyBookingHours];
-        const date = values[keyBookingDate];
-        const bookingPrice = values[keyBookingPrice];
-        const locationId = values[keyBookingLocation];
-        
-        if (!hours || !title || !locationId) {
-            return {
-                bookingName: "Required",
-                bookingHours: "Required",
-                bookingLocation: "Required",
+        if (!isLoading) {
+            const title = values[keyBookingName];
+            const hours = values[keyBookingHours];
+            const date = values[keyBookingDate];
+            const bookingPrice = values[keyBookingPrice];
+            const locationId = values[keyBookingLocation];
+    
+            if (!hours || !title || !locationId) {
+                return {
+                    bookingName: "Required",
+                    bookingHours: "Required",
+                    bookingLocation: "Required",
+                }
+            }
+    
+            try {
+                await addNewBooking(
+                    {
+                        bookedHours: hours,
+                        bookingDate: date.toISOString(),
+                        bookingLocationId: locationId,
+                        bookingTitle: title,
+                        id: nanoid(),
+                        bookingPrice: bookingPrice,
+                    }).unwrap()
+                handleClose();
+            } catch (e) {
+                console.log("Failed to save the booking")
             }
         }
         
-        dispatch(
-            addNewBooking(
-                {
-                    bookedHours: hours,
-                    bookingDate: date.toISOString(),
-                    bookingLocationId: locationId,
-                    bookingTitle: title,
-                    id: nanoid(),
-                    postedDate: new Date().toISOString(),
-                    reactions: {
-                        thumbsUp: 0,
-                        thumbsDown: 0
-                    },
-                    bookingPrice: bookingPrice,
-                })
-        ).unwrap()
-        handleClose();
     }
     
     return (

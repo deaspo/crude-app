@@ -6,17 +6,16 @@ import DeleteIcon from '@mui/icons-material/Delete';
 
 import { AddBookingForm, EditBookingForm } from 'components/dialog-forms'
 import { BookingsList } from "components/bookings-list";
-import { BookingProps, deleteBooking } from "features";
+import { BookingProps, useDeleteBookingMutation } from "features";
 
 import { AddText, bookingsPageClasses, FabContainer } from "./bookings-page-styles";
-import { useAppDispatch } from "redux-tools";
 import { NavBar, PageFooter } from "components/controls";
 
 export const BookingsPage = () => {
     const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
     const open = Boolean(anchorEl);
     const id = open ? 'simple-popover' : undefined;
-    const dispatch = useAppDispatch();
+    const [deleteBooking] = useDeleteBookingMutation();
     
     const [openAddDialog, setOpenAddDialog] = useState(false)
     
@@ -51,13 +50,12 @@ export const BookingsPage = () => {
         setAnchorEl(event.currentTarget);
     };
     
-    const handleDeleteBooking = () => {
+    const handleDeleteBooking = async () => {
         if (currentBooking.current) {
             try {
-                dispatch(deleteBooking(currentBooking.current)).unwrap()
+                await deleteBooking({id: currentBooking.current.id}).unwrap()
             } catch (err) {
-                console.error('Failed to delete the post', err)
-            } finally {
+                console.error('Failed to delete the booking', err)
             }
         }
     }

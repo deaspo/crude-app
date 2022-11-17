@@ -3,7 +3,7 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { IconButton, List, ListItem, ListItemText, Typography } from '@mui/material';
 
 import { useAppSelector } from "redux-tools/hooks";
-import { BookingProps, selectAllBookings, getBookingsStatus } from "features/bookings/bookingsSplice";
+import { BookingProps, selectAllBookings, useGetBookingsQuery } from "features/bookings/bookingsSplice";
 
 import { BookingLocation } from "components/booking-locations";
 import { TimeAgo } from "components/time-ago";
@@ -28,13 +28,18 @@ export const BookingsList = ({handleClickMore}: BookingListProps) => {
     const bookingsList: BookingProps[] = useAppSelector(selectAllBookings);
     const orderedBookings: BookingProps[] = bookingsList.slice().sort((a, b) => b.postedDate.localeCompare(a.postedDate));
     
-    let renderedRowItem: JSX.Element[];
+    let renderedRowItem: JSX.Element[] | null = null;
     
-    const bookingsStatus = useAppSelector(getBookingsStatus);
+    const {
+        isLoading,
+        isSuccess,
+        isError,
+        error
+    } = useGetBookingsQuery();
     
-    if (bookingsStatus === "loading") {
+    if (isLoading) {
         renderedRowItem = [<ListItemText key="loading-message">Loading List</ListItemText>]
-    } else if (bookingsStatus === "succeeded") {
+    } else if (isSuccess) {
         renderedRowItem = orderedBookings.map((booking) => {
             return (
                 <ListItem sx={{display: "flex"}} key={booking.id} divider disableGutters>
@@ -84,8 +89,8 @@ export const BookingsList = ({handleClickMore}: BookingListProps) => {
                 </ListItem>
             )
         });
-    } else {
-        renderedRowItem = [<ListItemText key="error-message">Error</ListItemText>]
+    } else if(isError) {
+        renderedRowItem = [<ListItemText key="error-message">{JSON.stringify(error)}</ListItemText>]
     }
     
     return (

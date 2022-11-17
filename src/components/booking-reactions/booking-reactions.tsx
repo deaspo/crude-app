@@ -1,5 +1,4 @@
-import { BookingProps, reactionAdded, ReactionType } from "features/bookings/bookingsSplice";
-import { useDispatch } from "react-redux";
+import { BookingProps, useAddReactionMutation, ReactionType } from "features/bookings/bookingsSplice";
 
 const reactionEmoji = {
     thumbsUp: '👍',
@@ -11,15 +10,18 @@ interface ReactionButtonProps {
 }
 
 export const ReactionButton = ({booking}: ReactionButtonProps) => {
-    const dispatch = useDispatch();
+    const [addReaction] = useAddReactionMutation();
+    
     const reactionButtons = Object.entries(reactionEmoji).map(([name, emoji]) => {
         return (
             <button
                 key={name}
                 type="button"
                 className="reactionButton"
-                onClick={() =>
-                    dispatch(reactionAdded({bookingId: booking.id, reaction: name}))
+                onClick={() => {
+                    const newValue = booking.reactions[name as keyof ReactionType] + 1;
+                    addReaction({bookingId: booking.id, reaction: {...booking.reactions, [name]: newValue}})
+                }
                 }
             >
                 {emoji} {booking.reactions[name as keyof ReactionType]}

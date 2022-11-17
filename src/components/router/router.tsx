@@ -7,7 +7,7 @@ export const Router = () => {
             <Routes>
                 <Route index element={<HomePage/>}/>
                 <Route path='faq' key='route-faq' element={<FaqPage/>}/>
-                <Route path='list' key='route-list'>
+                <Route path='bookings' key='route-bookings'>
                     <Route index element={<BookingsPage/>}/>
                     <Route path=":bookingId" element={<BookingsPage />} />
                 </Route>
