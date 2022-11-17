@@ -1,6 +1,7 @@
-import { createAsyncThunk, createSelector, createEntityAdapter, createSlice } from '@reduxjs/toolkit';
+import { createSelector, createEntityAdapter, EntityState } from '@reduxjs/toolkit';
 import { RootState } from "redux-tools/store";
 import { sub } from 'date-fns';
+import { apiSlice } from "features/api/apiSlice";
 
 export interface ReactionType {
     thumbsUp: number,
@@ -18,12 +19,12 @@ export interface BookingProps {
     reactions: ReactionType
 }
 
-export interface BookingsState {
+/*export interface BookingsState {
     bookings: BookingProps[],
     status: 'idle' | 'loading' | 'pending' | 'succeeded' | 'failed';
-}
+}*/
 
-const initialBookings: BookingProps[] = [
+/*const initialBookings: BookingProps[] = [
     {
         id: '0',
         bookedHours: 7,
@@ -76,9 +77,9 @@ const initialBookings: BookingProps[] = [
             thumbsDown: 0
         },
     },
-]
+]*/
 
-// Mock Server call functions
+/*// Mock Server call functions
 function mockServerAdapter(booking: BookingProps) {
     return new Promise<{ data: BookingProps }>((resolve) => setTimeout(
         () => resolve({data: booking}), 500
@@ -124,17 +125,18 @@ export const deleteBooking = createAsyncThunk(
         } catch (err) {
             throw new Error("Unable to delete");
         }
-    });
+    });*/
 
 
 const bookingsAdapter = createEntityAdapter<BookingProps>({
     sortComparer: (a,b) => a.postedDate.localeCompare(b.postedDate)
                                                           })    ;
-const initialStateAdapter = bookingsAdapter.getInitialState({
+/*const initialStateAdapter = bookingsAdapter.getInitialState({
                                                                 status: 'idle',
                                                                 count: 0
-                                                            })
+                                                            })*/
 
+/*
 export const bookingsSlice = createSlice({
     name: 'bookings',
     initialState: initialStateAdapter,
@@ -184,14 +186,147 @@ export const bookingsSlice = createSlice({
             bookingsAdapter.removeOne(state, id);
         })
     }
+});*/
+const initialStateAdapter = bookingsAdapter.getInitialState();
+
+export const  extendedApiSlice = apiSlice.injectEndpoints({
+    endpoints: builder => ({
+        getBookings: builder.query<EntityState<BookingProps>, void>({
+            query: () => '/bookings',
+            transformResponse: (response: BookingProps[]) => {
+                let min = 1;
+                const loadedBookings = response.map(booking => {
+                    if (!booking.postedDate) {
+                        booking.postedDate = sub(new Date(), {minutes: min}).toISOString()
+                    }
+                    if (!booking.reactions) {
+                        booking.reactions = {
+                            thumbsUp: 0,
+                            thumbsDown: 0
+                        }
+                    }
+                    if (booking.bookingLocationId.trim().length <= 0) {
+                        booking.bookingLocationId = "0";
+                    }
+                    return booking;
+                });
+                return bookingsAdapter.setAll(initialStateAdapter, loadedBookings);
+            },
+            providesTags: (result, error, arg) => result ? [
+                {type: 'Bookings', if: "LIST"},
+                ...result.ids.map(id => ({type: 'Bookings' as const, id}))
+            ]: [{type: 'Bookings', id: 'LIST'}]
+        }),
+        getBookingsByLocationId: builder.query<EntityState<BookingProps>, string | undefined>({
+            query: id => `/bookings/?bookingLocationId=${id}`,
+            transformResponse: (responseData:BookingProps[]) => {
+                let min = 1;
+                const loadedBookings = responseData.map(booking => {
+                    if (!booking.postedDate) {
+                        booking.postedDate = sub(new Date(), {minutes: min}).toISOString()
+                    }
+                    if (!booking.reactions) {
+                        booking.reactions = {
+                            thumbsUp: 0,
+                            thumbsDown: 0
+                        }
+                    }
+                    if (booking.bookingLocationId.trim().length <= 0) {
+                        booking.bookingLocationId = "0";
+                    }
+                    return booking;
+                });
+                return bookingsAdapter.setAll(initialStateAdapter, loadedBookings);
+            }, providesTags: (result, error, arg) => result ? [
+                {type: 'Bookings', id: "LIST"},
+                ...result.ids.map(id => ({type: 'Bookings' as const, id}))
+            ]: [{type: 'Bookings', id: 'LIST'}]
+        }),
+        addNewBooking: builder.mutation({
+            query: initialBooking => ({
+                url: '/bookings',
+                method: 'POST',
+                body: {
+                    ...initialBooking,
+                    locationId: initialBooking.bookingLocationId,
+                    postedDate: new Date().toISOString(),
+                    reactions: {
+                        thumbsUp: 0,
+                        thumbsDown: 0
+                    }
+                }
+            }),
+            invalidatesTags: ['Bookings']
+        }),
+        updateBooking: builder.mutation({
+            query: initialBooking => ({
+                url: `/bookings/${initialBooking.id}`,
+                method: 'PUT',
+                body: {
+                    ...initialBooking,
+                    postedDate: new Date().toISOString(),
+                }
+            }),
+            invalidatesTags: (results, error, arg) => [{type: 'Bookings', id: arg.id}]
+        }),
+        deleteBooking: builder.mutation({
+            query: ({id}) => ({
+                url: `/bookings/${id}`,
+                method: 'DELETE',
+                body: {id}
+            }),
+            invalidatesTags: (result,error,arg) => [{type: 'Bookings', id: arg.id}]
+        }),
+        addReaction: builder.mutation({ // Optimistic update
+            query: ({bookingId, reaction}) => ({
+                url: `bookings/${bookingId}`,
+                method: 'PATCH',
+                body: {reaction}
+            }),
+            async onQueryStarted({bookingId, reaction}, {dispatch, queryFulfilled}) {
+                // `updateQueryData` requires the endpoint name and cache key arguments,
+                // so it knows which piece of cache state to update
+                const patchResult = dispatch(
+                    extendedApiSlice.util.updateQueryData('getBookings', undefined, data => {
+                        // data is Immer-wrapped and can be "mutated" like in createSlice
+                        const booking = data.entities[bookingId];
+                        if (booking) {booking.reactions = reaction}
+                    })
+                )
+                try {
+                    await queryFulfilled;
+                } catch {
+                    patchResult.undo();
+                }
+            }
+        })
+    })
 });
+
+export const {
+    useGetBookingsQuery,
+    useGetBookingsByLocationIdQuery,
+    useAddNewBookingMutation,
+    useUpdateBookingMutation,
+    useDeleteBookingMutation,
+    useAddReactionMutation
+} = extendedApiSlice;
+// Query results
+export const selectBookingsResults = extendedApiSlice.endpoints.getBookings.select();
+
+// Memoized selector
+const selectBookingsData = createSelector(
+    selectBookingsResults,
+    bookingsResult => bookingsResult.data // normalized state object
+);
 
 export const {
     selectAll: selectAllBookings,
     selectById: selectBookingById,
     selectIds: selectBookingIds
-} = bookingsAdapter.getSelectors<RootState>(state => state.bookings);
+} = bookingsAdapter.getSelectors<RootState>(state => selectBookingsData(state) ?? initialStateAdapter);
 
+/*
 export const getCount = (state: RootState) => state.bookings.count;
 export const bookingsStatus = (state: RootState) => state.bookings.status;
 export const {reactionAdded} = bookingsSlice.actions;
@@ -202,4 +337,4 @@ export const selectBookingsByLocation = createSelector(
 );
 export const getBookingsStatus = (state: RootState) => state.bookings.status;
 
-export default bookingsSlice.reducer;
+export default bookingsSlice.reducer;*/
