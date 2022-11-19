@@ -1,4 +1,4 @@
-import { createSelector, createEntityAdapter, EntityState } from '@reduxjs/toolkit';
+import { createEntityAdapter, createSelector, EntityState } from '@reduxjs/toolkit';
 import { RootState } from "redux-tools/store";
 import { sub } from 'date-fns';
 import { apiSlice } from "features/api/apiSlice";
@@ -242,6 +242,16 @@ export const  extendedApiSlice = apiSlice.injectEndpoints({
                 ...result.ids.map(id => ({type: 'Bookings' as const, id}))
             ]: [{type: 'Bookings', id: 'LIST'}]
         }),
+        getBookingById: builder.query<BookingProps | null, string | undefined>({
+            query: id => `bookings/?id=${id}`,
+            transformResponse: (response: BookingProps[], meta, arg) => {
+                if (response.length === 1) {
+                    return response[0];
+                }
+                return null;
+            },
+            providesTags: (result, error, id) => [{type: 'Bookings', id}],
+        }),
         addNewBooking: builder.mutation({
             query: initialBooking => ({
                 url: '/bookings',
@@ -306,6 +316,7 @@ export const  extendedApiSlice = apiSlice.injectEndpoints({
 export const {
     useGetBookingsQuery,
     useGetBookingsByLocationIdQuery,
+    useGetBookingByIdQuery,
     useAddNewBookingMutation,
     useUpdateBookingMutation,
     useDeleteBookingMutation,
