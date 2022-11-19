@@ -1,5 +1,5 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-import { BookingsPage, FaqPage, HomePage, LocationsPage, LocationPage } from "components/pages";
+import { BookingsPage, FaqPage, HomePage, LocationsPage, LocationPage, BookingPage } from "components/pages";
 
 export const Router = () => {
     return (
@@ -9,7 +9,7 @@ export const Router = () => {
                 <Route path='faq' key='route-faq' element={<FaqPage/>}/>
                 <Route path='bookings' key='route-bookings'>
                     <Route index element={<BookingsPage/>}/>
-                    <Route path=":bookingId" element={<BookingsPage />} />
+                    <Route path=":bookingId" element={<BookingPage />} />
                 </Route>
                 <Route path='locations'>
                     <Route index element={<LocationsPage/>}/>
