@@ -288,19 +288,19 @@ export const  extendedApiSlice = apiSlice.injectEndpoints({
             invalidatesTags: (result,error,arg) => [{type: 'Bookings', id: arg.id}]
         }),
         addReaction: builder.mutation({ // Optimistic update
-            query: ({bookingId, reaction}) => ({
+            query: ({bookingId, reactions}) => ({
                 url: `bookings/${bookingId}`,
                 method: 'PATCH',
-                body: {reaction}
+                body: {reactions}
             }),
-            async onQueryStarted({bookingId, reaction}, {dispatch, queryFulfilled}) {
+            async onQueryStarted({bookingId, reactions}, {dispatch, queryFulfilled}) {
                 // `updateQueryData` requires the endpoint name and cache key arguments,
                 // so it knows which piece of cache state to update
                 const patchResult = dispatch(
                     extendedApiSlice.util.updateQueryData('getBookings', undefined, data => {
                         // data is Immer-wrapped and can be "mutated" like in createSlice
                         const booking = data.entities[bookingId];
-                        if (booking) {booking.reactions = reaction}
+                        if (booking) {booking.reactions = reactions}
                     })
                 )
                 try {

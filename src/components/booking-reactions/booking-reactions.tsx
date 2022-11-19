@@ -20,7 +20,7 @@ export const ReactionButton = ({booking}: ReactionButtonProps) => {
                 className="reactionButton"
                 onClick={() => {
                     const newValue = booking.reactions[name as keyof ReactionType] + 1;
-                    addReaction({bookingId: booking.id, reaction: {...booking.reactions, [name]: newValue}})
+                    addReaction({bookingId: booking.id, reactions: {...booking.reactions, [name]: newValue}})
                 }
                 }
             >

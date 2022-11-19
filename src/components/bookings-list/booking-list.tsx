@@ -28,6 +28,7 @@ export const BookingsList = ({handleClickMore}: BookingListProps) => {
                 <BookingsListItem
                     booking={booking}
                     handleClickMore={handleClickMore}
+                    key={booking.id}
                 />
             )
         });
