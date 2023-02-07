@@ -33,6 +33,7 @@ export const LocationsPage = () => {
   const formID: string = "addLocationForm";
   const [isoCode, setIsoCode] = useState<string>();
   const [selectedLocationId, setSelectedLocationId] = useState<string>("");
+  const [selectedCity, setSelectedCity] = useState<Partial<LocationType> | null >(null);
 
   const bookedCountries: LocationType[] = locations.map((location) => {
     return {
@@ -138,6 +139,7 @@ export const LocationsPage = () => {
               onChange={(value: any) => {
                 setSelectedLocationId("");
                 setIsoCode(value.isoCode);
+                setSelectedCity(null);
               }}
             />
           </div>
@@ -149,9 +151,11 @@ export const LocationsPage = () => {
                 aria-label="elect city example"
                 isDisabled={bookedCities?.length === 0}
                 options={bookedCities}
-                value={null}
-                onChange={(value: any) =>
-                  setSelectedLocationId(value.locationId)
+                value={selectedCity}
+                onChange={(value: any) => {
+                  setSelectedLocationId(value.locationId);
+                  setSelectedCity(value);
+                }
                 }
               />
             </div>
