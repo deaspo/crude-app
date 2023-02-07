@@ -33,7 +33,7 @@ export const AddBookingForm = ({open, handleClose}: AddBookingFormProps) => {
     const required = (value: string | number) => (value ? undefined : "Required");
     
     const locationsOptions = locations.map(location => (
-        <option key={location.id} value={location.id}>{location.location}</option>
+        <option key={location.id} value={location.id}>{location.city}</option>
     ))
     
     const renderForm = ({handleSubmit}: FormRenderProps): JSX.Element => {
