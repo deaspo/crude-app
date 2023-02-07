@@ -9,5 +9,5 @@ export const BookingLocation = ({locationId}: BookingLocationsProps) => {
     const locations = useAppSelector(allLocations);
     const location = locations.find(location => location.id === locationId);
     
-    return <span> Location: {location ? location.location : 'Unknown'} </span>
+    return <span> Location: {location ? location.city : 'Unknown'} </span>
 }
