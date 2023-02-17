@@ -1,21 +1,7 @@
 import { ListItem, ListItemButton, ListItemText } from "@mui/material";
-import { Button, NavBar, PageFooter } from "components/controls";
-import {
-  Dialog,
-  DialogBody,
-  DialogFooter,
-  DialogHeader,
-  DialogModal,
-} from "components/dialog";
-import {
-  LocationAddForm,
-  LocationData,
-} from "components/dialog-forms/location-add-form";
+import { NavBar, PageFooter } from "components/controls";
 import { LocationProps, useGetBookingsByLocationIdQuery } from "features";
-import {
-  allLocations,
-  selectLocationById,
-} from "features/locations/locationsSplice";
+import { allLocations, selectLocationById } from "features/locations/locationsSplice";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Select from "react-select";
@@ -24,13 +10,13 @@ import { useAppSelector } from "redux-tools/hooks";
 interface LocationType {
   value: string;
   label: string;
+  isoCode: string;
   locationId: string;
 }
 
 export const LocationsPage = () => {
   const locations = useAppSelector(allLocations);
   const navigate = useNavigate();
-  const formID: string = "addLocationForm";
   const [isoCode, setIsoCode] = useState<string>();
   const [selectedLocationId, setSelectedLocationId] = useState<string>("");
   const [selectedCity, setSelectedCity] = useState<Partial<LocationType> | null >(null);
@@ -98,25 +84,6 @@ export const LocationsPage = () => {
     ];
   }
 
-  const onAddLocation = (data: LocationData) => {
-    const { zipCode, isoCode, street, city } = data;
-    if (city && isoCode) {
-      //close the modal
-      let modalForm: HTMLElement | null =
-        document.getElementById("closeButton");
-      if (modalForm) {
-        console.log(
-          "zip, street, city, country",
-          zipCode,
-          street,
-          city,
-          isoCode
-        );
-        modalForm.click();
-      }
-    }
-  };
-
   return (
     <div className="min-h-full">
       <NavBar />
@@ -166,44 +133,7 @@ export const LocationsPage = () => {
               <ul className=" border border-solid">{renderedRowItems}</ul>
             </div>
           </div>
-          <div className="flex justify-end">
-            <Button
-              type="button"
-              buttonClasses="bg-blue-600 active:bg-blue-800 active:shadow-lg"
-              data-bs-toggle="modal"
-              data-bs-target="#commonModal"
-            >
-              Add location
-            </Button>
-          </div>
         </div>
-        <Dialog>
-          <DialogModal>
-            <DialogHeader>Add New Location</DialogHeader>
-            <DialogBody>
-              <LocationAddForm formID={formID} onSubmit={onAddLocation} />
-            </DialogBody>
-            <DialogFooter>
-              <Button
-                type="button"
-                buttonClasses="bg-purple-600 hover:bg-purple-700 hover:shadow-lg focus:bg-purple-700 focus:shadow-lg focus:outline-none focus:ring-0 active:shadow-lg"
-                data-bs-dismiss="modal"
-                id="closeButton"
-              >
-                Close
-              </Button>
-              <Button
-                type="submit"
-                buttonClasses="bg-blue-700 hover:bg-blue-600 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg"
-                //onClick={handleClickAddLocation}
-                //data-bs-dismiss="modal"
-                form={formID}
-              >
-                Save changes
-              </Button>
-            </DialogFooter>
-          </DialogModal>
-        </Dialog>
       </main>
       <PageFooter />
     </div>

@@ -1,163 +1,224 @@
-import React from "react";
-import { useAddNewBookingMutation } from "features/bookings/bookingsSplice";
-import { allLocations } from "features/locations/locationsSplice";
-import { useAppSelector } from "redux-tools/hooks";
-import { Button, Grid } from "@mui/material";
-
-import { Field, Form, FormProps, FormRenderProps } from "react-final-form";
-import { CommonDialog } from "components/dialog";
-
-import { FormButtonContainer, formClasses, GridItemContainer } from "./dialog-forms-styles";
-import { DialogFormError } from "./dialog-form-error";
-import { DatePickerAdapter } from "./date-picker-adapter";
-import "react-datepicker/dist/react-datepicker.css";
 import { nanoid } from "@reduxjs/toolkit";
 
-const CreateForm = Form as React.FC<FormProps>;
+import { Button } from "components/controls";
+import { useAddNewBookingMutation } from "features/bookings/bookingsSplice";
+import { addNewLocation, allLocations, fetchLocations, LocationProps } from "features/locations/locationsSplice";
+import React, { useRef, useState } from "react";
+import "react-datepicker/dist/react-datepicker.css";
+import { useAppDispatch, useAppSelector } from "redux-tools/hooks";
+import { DatePickerCustom } from "./date-picker-adapter";
 
 export interface AddBookingFormProps {
-    open: boolean,
     handleClose: () => void;
+    selectedLocation?: LocationProps;
+    setSelectedLocation?: (location: LocationProps | undefined) => void;
 }
 
-export const AddBookingForm = ({open, handleClose}: AddBookingFormProps) => {
-    const [ addNewBooking, {isLoading} ] = useAddNewBookingMutation();
+export const AddBookingForm = ({ handleClose, selectedLocation, setSelectedLocation }: AddBookingFormProps) => {
+    const [addNewBooking, { isLoading }] = useAddNewBookingMutation();
     const locations = useAppSelector(allLocations);
-    
+    const dispatch = useAppDispatch();
+
+    // Ref to store form data values
+    const bookingName = useRef<string>();
+    const bookingHours = useRef<number>();
+    const bookingPrice = useRef<number>();
+
     const keyBookingName = "bookingName";
     const keyBookingDate = "bookingDate";
     const keyBookingHours = "bookingHours";
     const keyBookingPrice = "bookingPrice";
     const keyBookingLocation = "bookingLocation";
-    
-    const required = (value: string | number) => (value ? undefined : "Required");
-    
-    const locationsOptions = locations.map(location => (
-        <option key={location.id} value={location.id}>{location.city}</option>
-    ))
-    
-    const renderForm = ({handleSubmit}: FormRenderProps): JSX.Element => {
-        return (
-            <form
-                autoComplete="off"
-                id="addForm"
-                onSubmit={handleSubmit}
-            >
-                <Grid container direction="column" rowSpacing="16px">
-                    <GridItemContainer className={formClasses.gridItem} item>
-                        <label> Booking Name</label>
-                        <Field
-                            name={keyBookingName}
-                            component="input"
-                            type="text"
-                            placeholder="Booking Name"
-                            validate={required}
-                        />
-                        <DialogFormError name={keyBookingName}/>
-                    </GridItemContainer>
-                    <GridItemContainer className={formClasses.gridItem} item>
-                        <label> Booking Date</label>
-                        <Field
-                            name={keyBookingDate}
-                            component={DatePickerAdapter}
-                            dateFormat="dd-MM-yyyy"
-                            placeholderText="Booking Date"
-                        />
-                    </GridItemContainer>
-                    <GridItemContainer className={formClasses.gridItem} item>
-                        <label> Booked Hours</label>
-                        <Field
-                            name={keyBookingHours}
-                            component="input"
-                            placeholder="Hours Booked"
-                            type="text"
-                            validate={required}
-                        />
-                        <DialogFormError name={keyBookingHours}/>
-                    </GridItemContainer>
-                    <GridItemContainer className={formClasses.gridItem} item>
-                        <label> Booking Price</label>
-                        <Field
-                            name={keyBookingPrice}
-                            component="input"
-                            placeholder="Booking Price"
-                            type="text"
-                        />
-                    </GridItemContainer>
-                    <GridItemContainer className={formClasses.gridItem} item>
-                        <label> Booked Location</label>
-                        <Field
-                            name={keyBookingLocation}
-                            component="select"
-                            validate={required}
-                        >
-                            <option value=""/>
-                            {locationsOptions}
-                        </Field>
-                        <DialogFormError name={keyBookingLocation}/>
-                    </GridItemContainer>
-                    <Grid item>
-                        <FormButtonContainer className={formClasses.buttonContainer} data-testid="submit-button">
-                            <Button
-                                onClick={handleClose}
-                            >
-                                Close
-                            </Button>
-                            <Button
-                                type="submit"
-                            >
-                                Submit
-                            </Button>
-                        </FormButtonContainer>
-                    </Grid>
-                </Grid>
-            </form>
-        );
-    }
-    
-    const handleSubmitForm = async (values: any): Promise<any> => {
+
+    const handleSubmitForm = async (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
         if (!isLoading) {
-            const title = values[keyBookingName];
-            const hours = values[keyBookingHours];
-            const date = values[keyBookingDate];
-            const bookingPrice = values[keyBookingPrice];
-            const locationId = values[keyBookingLocation];
-    
+            const title = bookingName.current;
+            const hours = bookingHours.current;
+            const date = startDate ? startDate : new Date();
+            const price = bookingPrice.current;
+            const locationId = selectedLocation?.id;
+
             if (!hours || !title || !locationId) {
                 return {
                     bookingName: "Required",
                     bookingHours: "Required",
-                    bookingLocation: "Required",
+                    bookingLocation: "Required"
+                };
+            }
+            // if location already exists in db just add it's id to the booking db and not location db
+            let setNewLocation: boolean = !locations.includes(selectedLocation);
+            try {
+                // add new location
+                if (setNewLocation) {
+                    await dispatch(
+                        addNewLocation(
+                            selectedLocation
+                        )
+                    ).unwrap();
+                    if (setSelectedLocation) {
+                        setSelectedLocation(undefined);
+                    }
+                    await dispatch(fetchLocations());
                 }
             }
-    
+            catch (e) {
+                console.warn("Failed to save the new location info")
+            }
+
+            // Add booking and location info - id
             try {
-                await addNewBooking(
-                    {
-                        bookedHours: hours,
-                        bookingDate: date.toISOString(),
-                        bookingLocationId: locationId,
-                        bookingTitle: title,
-                        id: nanoid(),
-                        bookingPrice: bookingPrice,
-                    }).unwrap()
+                await addNewBooking({
+                                        bookedHours: hours,
+                                        bookingDate: date.toISOString(),
+                                        bookingLocationId: locationId,
+                                        bookingTitle: title,
+                                        id: nanoid(),
+                                        bookingPrice: price
+                                    }).unwrap();
                 handleClose();
-            } catch (e) {
-                console.log("Failed to save the booking")
+            }
+            catch (e) {
+                console.log("Failed to save the booking");
             }
         }
-        
-    }
-    
+    };
+
+    const [startDate, setStartDate] = useState<Date | null>(null);
+
     return (
-        <CommonDialog
-            open={open}
-            title={"Add a New Booking"}
-        >
-            <CreateForm
-                onSubmit={handleSubmitForm}
-                render={renderForm}
-            />
-        </CommonDialog>
+        <div className="block p-6 rounded-lg shadow-lg bg-white max-w-md mx-auto">
+            <form autoComplete="on" id="addForm" onSubmit={handleSubmitForm}>
+                <div className="form-group mb-6">
+                    <input
+                        type="text"
+                        id={keyBookingName}
+                        name={keyBookingName}
+                        aria-describedby={"Booking name"}
+                        className="form-control block
+         w-full
+          px-3
+          py-1.5
+          text-base
+          font-normal
+          text-gray-700
+          bg-white bg-clip-padding
+          border border-solid border-gray-300
+          rounded
+          transition
+          ease-in-out
+          m-0
+          focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
+                        required={true}
+                        placeholder="Booking name"
+                        onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                            (bookingName.current = event.target.value)
+                        }
+                    />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="form-group mb-6">
+                        <input
+                            type="number"
+                            id={keyBookingPrice}
+                            name={keyBookingPrice}
+                            className="form-control
+          block
+          w-full
+          px-3
+          py-1.5
+          text-base
+          font-normal
+          text-gray-700
+          bg-white bg-clip-padding
+          border border-solid border-gray-300
+          rounded
+          transition
+          ease-in-out
+          m-0
+          focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
+                            aria-describedby="Price of booking"
+                            placeholder="Price"
+                            onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                                (bookingPrice.current = Number(event.target.value))
+                            }
+                        />
+                    </div>
+                    <div className="form-group mb-6">
+                        <input
+                            type="number"
+                            id={keyBookingHours}
+                            name={keyBookingHours}
+                            className="form-control
+          block
+          w-full
+          px-3
+          py-1.5
+          text-base
+          font-normal
+          text-gray-700
+          bg-white bg-clip-padding
+          border border-solid border-gray-300
+          rounded
+          transition
+          ease-in-out
+          m-0
+          focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
+                            aria-describedby="Booked hours"
+                            placeholder="Hours"
+                            onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                                (bookingHours.current = Number(event.target.value))
+                            }
+                        />
+                    </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="form-group mb-6">
+                        <DatePickerCustom
+                            onChange={setStartDate}
+                            value={startDate}
+                            id={keyBookingDate}
+                            name={keyBookingDate}
+                            placeholderText="Date"
+                            className="w-full px-3 py-1.5 font-normal text-right border border-solid border-gray-300"
+                        />
+                    </div>
+                    <div className="form-group mb-6">
+                        <input
+                            id={keyBookingLocation}
+                            name={keyBookingLocation}
+                            type="button"
+                            value={
+                                selectedLocation
+                                    ? `${selectedLocation.city},${selectedLocation.country}`
+                                    : "Location"
+                            }
+                            className="w-full px-3 py-1.5 bg-blue-600 hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:shadow-lg"
+                            data-bs-toggle="modal"
+                            data-bs-target="#commonModal"
+                        />
+                    </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="form-group mb-6">
+                        <Button
+                            type="button"
+                            buttonClasses="w-full bg-red-600 hover:bg-red-700 hover:shadow-lg focus:bg-red-700 focus:shadow-lg focus:outline-none focus:ring-0 active:shadow-lg"
+                            onClick={handleClose}
+                        >
+                            Cancel
+                        </Button>
+                    </div>
+                    <div className="form-group mb-6">
+                        <Button
+                            type="submit"
+                            buttonClasses="w-full bg-green-600 hover:bg-greeb-700 hover:shadow-lg focus:bg-green-700 focus:shadow-lg focus:outline-none focus:ring-0 active:shadow-lg"
+                        >
+                            Submit
+                        </Button>
+                    </div>
+                </div>
+            </form>
+        </div>
     );
-}
+};
