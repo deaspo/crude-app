@@ -2,7 +2,12 @@ import { nanoid } from "@reduxjs/toolkit";
 
 import { Button } from "components/controls";
 import { useAddNewBookingMutation } from "features/bookings/bookingsSplice";
-import { addNewLocation, allLocations, fetchLocations, LocationProps } from "features/locations/locationsSplice";
+import {
+    allLocations,
+    fetchLocations,
+    LocationProps,
+    useAddNewLocationMutation
+} from "features/locations/locationsSplice";
 import React, { useRef, useState } from "react";
 import "react-datepicker/dist/react-datepicker.css";
 import { useAppDispatch, useAppSelector } from "redux-tools/hooks";
@@ -16,6 +21,7 @@ export interface AddBookingFormProps {
 
 export const AddBookingForm = ({ handleClose, selectedLocation, setSelectedLocation }: AddBookingFormProps) => {
     const [addNewBooking, { isLoading }] = useAddNewBookingMutation();
+    const [addNewLocation] = useAddNewLocationMutation();
     const locations = useAppSelector(allLocations);
     const dispatch = useAppDispatch();
 
@@ -51,11 +57,12 @@ export const AddBookingForm = ({ handleClose, selectedLocation, setSelectedLocat
             try {
                 // add new location
                 if (setNewLocation) {
-                    await dispatch(
-                        addNewLocation(
-                            selectedLocation
-                        )
-                    ).unwrap();
+                    /*await dispatch(
+                     addNewLocation(
+                     selectedLocation
+                     )
+                     ).unwrap();*/
+                    await addNewLocation(selectedLocation);
                     if (setSelectedLocation) {
                         setSelectedLocation(undefined);
                     }

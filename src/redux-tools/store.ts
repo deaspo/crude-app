@@ -1,12 +1,10 @@
 import { Action, configureStore, ThunkAction } from '@reduxjs/toolkit';
-import locationReducer from 'features/locations/locationsSplice';
-import priceReducer from 'features/price/priceSplice';
 import { apiSlice } from "features";
+import priceReducer from 'features/price/priceSplice';
 
 export const store = configureStore({
                                         reducer: {
                                             [apiSlice.reducerPath]: apiSlice.reducer,
-                                            locations: locationReducer,
                                             price: priceReducer
                                         },
                                         middleware: getDefaultMiddleware => getDefaultMiddleware().concat(apiSlice.middleware),

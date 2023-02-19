@@ -1,4 +1,4 @@
-import { createAsyncThunk, createEntityAdapter, createSelector, createSlice, EntityState } from "@reduxjs/toolkit";
+import { createAsyncThunk, createEntityAdapter, createSelector, EntityState } from "@reduxjs/toolkit";
 import { RootState } from "redux-tools/store";
 import { apiSlice } from "../api";
 import { mockGetData, mockServerAdapter } from "../utils";
@@ -72,9 +72,7 @@ export const deleteLocation = createAsyncThunk(
 const locationsAdapter = createEntityAdapter<LocationProps>({
                                                                 sortComparer: (a, b) => a.country.localeCompare(b.country)
                                                             });
-const initialStateAdapter = locationsAdapter.getInitialState({
-                                                                 status: "idle"
-                                                             });
+const initialStateAdapter = locationsAdapter.getInitialState();
 
 export const extendedLocationApiSlice = apiSlice.injectEndpoints({
                                                                      endpoints: builder => ({
@@ -119,55 +117,63 @@ export const extendedLocationApiSlice = apiSlice.injectEndpoints({
                                                                                                           })
                                                                      })
                                                                  });
+export const {
+    useAddNewLocationMutation,
+    useGetLocationByIdQuery,
+    useGetLocationsQuery
+} = extendedLocationApiSlice;
+export const selectLocationResults = extendedLocationApiSlice.endpoints.getLocations.select();
+// Memoized selector
+const selectLocationsData = createSelector(selectLocationResults, locationsResult => locationsResult.data)
 
-export const locationsSplice = createSlice({
-                                               name: "locations",
-                                               initialState: initialStateAdapter,
-                                               reducers: {},
-                                               extraReducers: (builder) => {
-                                                   builder
-                                                       .addCase(fetchLocations.pending, (state, action) => {
-                                                           state.status = "loading";
-                                                       })
-                                                       .addCase(fetchLocations.fulfilled, (state, action) => {
-                                                           state.status = "succeeded";
-                                                           locationsAdapter.upsertMany(state, action.payload);
-                                                       })
-                                                       .addCase(fetchLocations.rejected, (state, action) => {
-                                                           state.status = "failed";
-                                                       })
-                                                       .addCase(addNewLocation.fulfilled, (state, action) => {
-                                                           locationsAdapter.addOne(state, action.payload);
-                                                       })
-      .addCase(updateLocation.fulfilled, (state, action) => {
-        if (!action.payload.id) {
-          console.log("Update did not complete", action.payload);
-          return;
-        }
-        locationsAdapter.upsertOne(state, action.payload);
-      })
-      .addCase(deleteLocation.fulfilled, (state, action) => {
-        if (!action.payload.id) {
-          console.log("Delete did not complete");
-          return;
-        }
-        const { id } = action.payload;
-        locationsAdapter.removeOne(state, id);
-      });
-  },
-});
+/*export const locationsSplice = createSlice({
+ name: "locations",
+ initialState: initialStateAdapter,
+ reducers: {},
+ extraReducers: (builder) => {
+ builder
+ .addCase(fetchLocations.pending, (state, action) => {
+ state.status = "loading";
+ })
+ .addCase(fetchLocations.fulfilled, (state, action) => {
+ state.status = "succeeded";
+ locationsAdapter.upsertMany(state, action.payload);
+ })
+ .addCase(fetchLocations.rejected, (state, action) => {
+ state.status = "failed";
+ })
+ .addCase(addNewLocation.fulfilled, (state, action) => {
+ locationsAdapter.addOne(state, action.payload);
+ })
+ .addCase(updateLocation.fulfilled, (state, action) => {
+ if (!action.payload.id) {
+ console.log("Update did not complete", action.payload);
+ return;
+ }
+ locationsAdapter.upsertOne(state, action.payload);
+ })
+ .addCase(deleteLocation.fulfilled, (state, action) => {
+ if (!action.payload.id) {
+ console.log("Delete did not complete");
+ return;
+ }
+ const { id } = action.payload;
+ locationsAdapter.removeOne(state, id);
+ });
+ },
+ });*/
 
 export const {
-  selectAll: allLocations,
-  selectById: selectLocationById,
-  selectIds: locationIds,
-} = locationsAdapter.getSelectors<RootState>((state) => state.locations);
+    selectAll: allLocations,
+    selectById: selectLocationById,
+    selectIds: locationIds
+} = locationsAdapter.getSelectors<RootState>(state => selectLocationsData(state) ?? initialStateAdapter);
 
-export const getLocationsStatus = (state: RootState) => state.locations.status;
-export const selectLocationsByCountry = createSelector(
-  [allLocations, (state, countryInfo: string | undefined) => countryInfo],
-  (locations, countryInfo) =>
-    locations.filter((location) => location.country === countryInfo)
-);
+//export const getLocationsStatus = (state: RootState) => state.locations.status;
+/*export const selectLocationsByCountry = createSelector(
+ [allLocations, (state, countryInfo: string | undefined) => countryInfo],
+ (locations, countryInfo) =>
+ locations.filter((location) => location.country === countryInfo)
+ );*/
 
-export default locationsSplice.reducer;
+//export default locationsSplice.reducer;

@@ -1,18 +1,7 @@
 import { CommonDialog } from "components/dialog";
-import {
-  BookingDataType,
-  BookingForm,
-} from "components/dialog-forms/booking-form";
-import {
-  addNewLocation,
-  allLocations,
-  fetchLocations,
-  LocationProps,
-} from "features";
-import {
-  selectBookingById,
-  useUpdateBookingMutation,
-} from "features/bookings/bookingsSplice";
+import { BookingDataType, BookingForm } from "components/dialog-forms/booking-form";
+import { allLocations, fetchLocations, LocationProps, useAddNewLocationMutation } from "features";
+import { selectBookingById, useUpdateBookingMutation } from "features/bookings/bookingsSplice";
 import React from "react";
 
 import { useAppDispatch, useAppSelector } from "redux-tools";
@@ -31,8 +20,9 @@ export const EditBookingForm = ({
   setSelectedLocation,
 }: EditBookingFormProps) => {
   const [updateBooking, { isLoading }] = useUpdateBookingMutation();
+  const [addNewLocation] = useAddNewLocationMutation();
   const booking = useAppSelector((state) =>
-    selectBookingById(state, bookingId)
+                                     selectBookingById(state, bookingId)
   );
   const locations = useAppSelector(allLocations);
   const dispatch = useAppDispatch();
@@ -72,7 +62,8 @@ export const EditBookingForm = ({
         try {
           // add new location
           if (setNewLocation) {
-            await dispatch(addNewLocation(selectedLocation)).unwrap();
+            //await dispatch(addNewLocation(selectedLocation)).unwrap();
+            await addNewLocation(selectedLocation);
             if (setSelectedLocation) {
               setSelectedLocation(undefined);
             }
