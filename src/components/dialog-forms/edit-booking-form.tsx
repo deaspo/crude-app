@@ -1,184 +1,111 @@
-import { useAppSelector } from "redux-tools";
-import { selectBookingById, useUpdateBookingMutation } from "features/bookings/bookingsSplice";
-import { allLocations } from "features/locations/locationsSplice";
-import React from "react";
 import { CommonDialog } from "components/dialog";
-import { DialogFormError } from "./dialog-form-error";
-import { DatePickerAdapter } from "./date-picker-adapter";
-import { Button, Grid } from '@mui/material';
-import { parseISO } from 'date-fns';
+import {
+  BookingDataType,
+  BookingForm,
+} from "components/dialog-forms/booking-form";
+import {
+  addNewLocation,
+  allLocations,
+  fetchLocations,
+  LocationProps,
+} from "features";
+import {
+  selectBookingById,
+  useUpdateBookingMutation,
+} from "features/bookings/bookingsSplice";
+import React from "react";
 
-import { Field, Form, FormProps, FormRenderProps } from "react-final-form";
-import { FormButtonContainer, formClasses, GridItemContainer } from "./dialog-forms-styles";
+import { useAppDispatch, useAppSelector } from "redux-tools";
 
 export interface EditBookingFormProps {
-    open: boolean,
-    handleClose: () => void;
-    bookingId: string,
+  handleClose: () => void;
+  bookingId: string;
+  selectedLocation?: LocationProps;
+  setSelectedLocation?: (location: LocationProps | undefined) => void;
 }
 
-const CreateForm = Form as React.FC<FormProps>;
+export const EditBookingForm = ({
+  handleClose,
+  bookingId,
+  selectedLocation,
+  setSelectedLocation,
+}: EditBookingFormProps) => {
+  const [updateBooking, { isLoading }] = useUpdateBookingMutation();
+  const booking = useAppSelector((state) =>
+    selectBookingById(state, bookingId)
+  );
+  const locations = useAppSelector(allLocations);
+  const dispatch = useAppDispatch();
 
-export const EditBookingForm = ({open, handleClose, bookingId}: EditBookingFormProps) => {
-    const [updateBooking, {isLoading}] = useUpdateBookingMutation();
-    const booking = useAppSelector(state => selectBookingById(state, bookingId));
-    const locations = useAppSelector(allLocations);
-    
-    const keyBookingName = "bookingName";
-    const keyBookingDate = "bookingDate";
-    const keyBookingHours = "bookingHours";
-    const keyBookingPrice = "bookingPrice";
-    const keyBookingLocation = "bookingLocation";
-    
-    if (!booking) {
-        return (
-            <CommonDialog
-                open={open}
-                handleClose={handleClose}
-                title={"Error"}
-            >
-                <h2> Booking not found!</h2>
-            </CommonDialog>
-        );
-    }
-    
-    const initialDate = parseISO(booking.bookingDate);
-    
-    const handleSubmitForm = async (values: any): Promise<any> => {
-        const title = values[keyBookingName];
-        const hours = values[keyBookingHours];
-        const date = values[keyBookingDate];
-        const bookingPrice = values[keyBookingPrice];
-        const locationId = values[keyBookingLocation];
-        
-        if (!hours || !title || !locationId) {
-            return {
-                bookingName: "Required",
-                bookingHours: "Required",
-                bookingLocation: "Required",
-            }
-        }
-        
-        const canSave = [title, hours, locationId].every(Boolean) && !isLoading;
-        
-        if (canSave) {
-            try {
-                await  updateBooking(
-                        {
-                            id: booking.id,
-                            bookedHours: hours,
-                            bookingTitle: title,
-                            bookingDate: date.toISOString(),
-                            bookingPrice: bookingPrice,
-                            bookingLocationId: locationId,
-                            reactions: booking.reactions
-                        }
-                    ).unwrap()
-                handleClose();
-            } catch (err) {
-                console.error('Failed to save the booking', err);
-            }
-        }
-    }
-    
-    const required = (value: string | number) => (value ? undefined : "Required");
-    
-    const locationsOptions = locations.map(location => (
-        <option key={location.id} value={location.id}>{location.city}</option>
-    ))
-    
-    const renderForm = ({handleSubmit}: FormRenderProps): JSX.Element => {
-        return (
-            <form
-                autoComplete="off"
-                id="addForm"
-                onSubmit={handleSubmit}
-            >
-                <Grid container direction="column" rowSpacing="16px">
-                    <GridItemContainer className={formClasses.gridItem} item>
-                        <label> Booking Name</label>
-                        <Field
-                            name={keyBookingName}
-                            component="input"
-                            type="text"
-                            initialValue={booking.bookingTitle}
-                            placeholder="Booking Name"
-                            validate={required}
-                        />
-                        <DialogFormError name={keyBookingName}/>
-                    </GridItemContainer>
-                    <GridItemContainer className={formClasses.gridItem} item>
-                        <label> Booking Date</label>
-                        <Field
-                            name={keyBookingDate}
-                            component={DatePickerAdapter}
-                            dateFormat="dd-MM-yyyy"
-                            initialValue={initialDate}
-                        />
-                    </GridItemContainer>
-                    <GridItemContainer className={formClasses.gridItem} item>
-                        <label> Booked Hours</label>
-                        <Field
-                            name={keyBookingHours}
-                            component="input"
-                            placeholder="Hours Booked"
-                            type="text"
-                            initialValue={booking.bookedHours}
-                            validate={required}
-                        />
-                        <DialogFormError name={keyBookingHours}/>
-                    </GridItemContainer>
-                    <GridItemContainer className={formClasses.gridItem} item>
-                        <label> Booking Price</label>
-                        <Field
-                            name={keyBookingPrice}
-                            component="input"
-                            placeholder="Booking Price"
-                            type="text"
-                            initialValue={booking.bookingPrice}
-                        />
-                    </GridItemContainer>
-                    <GridItemContainer className={formClasses.gridItem} item>
-                        <label> Booked Location</label>
-                        <Field
-                            name={keyBookingLocation}
-                            component="select"
-                            initialValue={booking.bookingLocationId}
-                            validate={required}
-                        >
-                            <option value=""/>
-                            {locationsOptions}
-                        </Field>
-                        <DialogFormError name={keyBookingLocation}/>
-                    </GridItemContainer>
-                    <Grid item>
-                        <FormButtonContainer className={formClasses.buttonContainer} data-testid="submit-button">
-                            <Button
-                                onClick={handleClose}
-                            >
-                                Close
-                            </Button>
-                            <Button
-                                type="submit"
-                            >
-                                Submit
-                            </Button>
-                        </FormButtonContainer>
-                    </Grid>
-                </Grid>
-            </form>
-        );
-    }
-    
+  if (!booking) {
     return (
-        <CommonDialog
-            open={open}
-            title={"Edit Booking Info"}
-        >
-            <CreateForm
-                onSubmit={handleSubmitForm}
-                render={renderForm}
-            />
-        </CommonDialog>
+      <CommonDialog open={true} handleClose={handleClose} title={"Error"}>
+        <h2> Booking not found!</h2>
+      </CommonDialog>
     );
-}
+  }
+
+  const handleSubmitForm = async (values: BookingDataType) => {
+    const title = values.bookingTitle;
+    const hours = values.bookedHours;
+    const date = values.bookingDate;
+    const bookingPrice = values.bookingPrice;
+
+    const locationId = selectedLocation
+      ? selectedLocation.id
+      : booking.bookingLocationId;
+
+    if (!hours || !title || !locationId) {
+      return {
+        bookingName: "Required",
+        bookingHours: "Required",
+        bookingLocation: "Required",
+      };
+    }
+
+    const canSave = [title, hours, locationId].every(Boolean) && !isLoading;
+
+    if (canSave) {
+      if (selectedLocation) {
+        // if location already exists in db just add it's id to the booking db and not location db
+        let setNewLocation: boolean = !locations.includes(selectedLocation);
+        try {
+          // add new location
+          if (setNewLocation) {
+            await dispatch(addNewLocation(selectedLocation)).unwrap();
+            if (setSelectedLocation) {
+              setSelectedLocation(undefined);
+            }
+            await dispatch(fetchLocations());
+          }
+        } catch (e) {
+          console.warn("Failed to save the new location info");
+        }
+      }
+
+      try {
+        await updateBooking({
+          id: booking.id,
+          bookedHours: hours,
+          bookingTitle: title,
+          bookingDate: date,
+          bookingPrice: bookingPrice,
+          bookingLocationId: locationId,
+          reactions: booking.reactions,
+        }).unwrap();
+        handleClose();
+      } catch (err) {
+        console.error("Failed to save the booking", err);
+      }
+    }
+  };
+
+  return (
+    <BookingForm
+      onSubmit={handleSubmitForm}
+      handleClose={handleClose}
+      formData={booking}
+      selectedLocation={selectedLocation}
+    />
+  );
+};

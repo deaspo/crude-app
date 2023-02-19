@@ -471,60 +471,56 @@
       }
     },
     {
-      "bookedHours": 6,
-      "bookingDate": "2023-02-15T23:00:00.000Z",
-      "bookingLocationId": "fr_idf_paris",
-      "bookingTitle": "Paris hotel",
       "id": "902g-UEGHEgisnrIx7Z5K",
+      "bookedHours": 6,
+      "bookingTitle": "Paris hotel",
+      "bookingDate": "2023-02-15T23:00:00.000Z",
       "bookingPrice": 600,
-      "locationId": "fr_idf_paris",
-      "postedDate": "2023-02-14T22:18:35.789Z",
+      "bookingLocationId": "fr_idf_paris",
       "reactions": {
         "thumbsUp": 2,
         "thumbsDown": 0
-      }
+      },
+      "postedDate": "2023-02-19T14:39:16.584Z"
     },
     {
-      "bookedHours": 4,
-      "bookingDate": "2023-02-14T23:00:00.000Z",
-      "bookingLocationId": "de_be_berlin",
-      "bookingTitle": "Hotel Berlin",
       "id": "P5IH7LZqG16v0tMf81CVL",
+      "bookedHours": 4,
+      "bookingTitle": "Hotel Berlin",
+      "bookingDate": "2023-02-14T23:00:00.000Z",
       "bookingPrice": 200,
-      "locationId": "de_be_berlin",
-      "postedDate": "2023-02-14T22:21:23.383Z",
+      "bookingLocationId": "de_be_berlin",
       "reactions": {
         "thumbsUp": 0,
-        "thumbsDown": 0
-      }
+        "thumbsDown": 1
+      },
+      "postedDate": "2023-02-18T22:25:56.939Z"
     },
     {
-      "bookedHours": 1,
-      "bookingDate": "2023-02-19T23:00:00.000Z",
-      "bookingLocationId": "ru_mow_moscow",
-      "bookingTitle": "Hotel Russia",
       "id": "J9y4Pfy6FFW_PH0v0iicI",
+      "bookedHours": 2,
+      "bookingTitle": "Hotel Moscow",
+      "bookingDate": "2023-02-19T23:00:00.000Z",
       "bookingPrice": 100,
-      "locationId": "ru_mow_moscow",
-      "postedDate": "2023-02-14T22:44:30.169Z",
+      "bookingLocationId": "ru_mow_moscow",
       "reactions": {
         "thumbsUp": 0,
         "thumbsDown": 0
-      }
+      },
+      "postedDate": "2023-02-19T14:50:32.180Z"
     },
     {
-      "bookedHours": 6,
-      "bookingDate": "2023-02-27T23:00:00.000Z",
-      "bookingLocationId": "ke_17_kisumu",
-      "bookingTitle": "Sunset hotel",
       "id": "x2uwGGdHG-XAdhji_6ijd",
+      "bookedHours": 6,
+      "bookingTitle": "Sunset hotel",
+      "bookingDate": "2023-02-27T23:00:00.000Z",
       "bookingPrice": 50,
-      "locationId": "ke_17_kisumu",
-      "postedDate": "2023-02-14T23:09:42.519Z",
+      "bookingLocationId": "ke_17_kisumu",
       "reactions": {
         "thumbsUp": 0,
         "thumbsDown": 0
-      }
+      },
+      "postedDate": "2023-02-19T14:58:55.436Z"
     }
   ]
 }
