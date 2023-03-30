@@ -1,23 +1,24 @@
-import React from "react";
 import { List, ListItemText } from '@mui/material';
+import { BookingProps, selectAllBookings, useGetBookingsQuery } from "features/bookings/bookingsSplice";
+import React from "react";
 
 import { useAppSelector } from "redux-tools/hooks";
-import { BookingProps, selectAllBookings, useGetBookingsQuery } from "features/bookings/bookingsSplice";
-
-import { BookingListProps } from "./booking-list-props";
 import { BookingsListItem } from "./booking-list-item";
 
-export const BookingsList = ({handleClickMore}: BookingListProps) => {
+import { BookingListProps } from "./booking-list-props";
+
+export const BookingsList = ({ handleClickMore }: BookingListProps) => {
     const bookingsList: BookingProps[] = useAppSelector(selectAllBookings);
     const orderedBookings: BookingProps[] = bookingsList.slice().sort((a, b) => b.postedDate.localeCompare(a.postedDate));
-    
+
     let renderedRowItem: JSX.Element[] | null = null;
-    
+
     const {
         isLoading,
         isSuccess,
         isError,
-        error
+        error,
+        data
     } = useGetBookingsQuery();
     
     if (isLoading) {

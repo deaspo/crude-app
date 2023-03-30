@@ -29,44 +29,45 @@ const initialState: LocationProps[] = [
 ];
 
 export const fetchLocations = createAsyncThunk(
-  "/locations/fetchLocations",
-  async () => {
-    const response = await mockGetData<LocationProps>();
-      return response.data.concat(initialState);
-  }
+    "/locations/fetchLocations",
+    async () => {
+        const response = await mockGetData<LocationProps>();
+        return response.data.concat(initialState);
+    }
 );
 
 export const addNewLocation = createAsyncThunk(
-  "/locations/addNewLocation",
-  async (initialLocation: LocationProps) => {
-    const response = await mockServerAdapter(initialLocation);
-    return response.data;
-  }
+    "/locations/addNewLocation",
+    async (initialLocation: LocationProps) => {
+        const response = await mockServerAdapter(initialLocation);
+        return response.data;
+    }
 );
 
 export const updateLocation = createAsyncThunk(
-  "/locations/updateLocation",
-  async (initialLocation: LocationProps) => {
-    try {
-      const response = await mockServerAdapter(initialLocation);
-      return response.data;
-    } catch (err) {
-      throw new Error("Unable to update");
+    "/locations/updateLocation",
+    async (initialLocation: LocationProps) => {
+        try {
+            const response = await mockServerAdapter(initialLocation);
+            return response.data;
+        }
+        catch (err) {
+            throw new Error("Unable to update");
+        }
     }
-  }
 );
 
 export const deleteLocation = createAsyncThunk(
-  "/locations/deleteLocation",
-  async (initialLocation: LocationProps) => {
-    try {
-      const response = await mockServerAdapter(initialLocation);
-      return response.data;
+    "/locations/deleteLocation",
+    async (initialLocation: LocationProps) => {
+        try {
+            const response = await mockServerAdapter(initialLocation);
+            return response.data;
+        }
+        catch (err) {
+            throw new Error("Unable to delete");
+        }
     }
-    catch (err) {
-        throw new Error("Unable to delete");
-    }
-  }
 );
 
 const locationsAdapter = createEntityAdapter<LocationProps>({
@@ -74,49 +75,54 @@ const locationsAdapter = createEntityAdapter<LocationProps>({
                                                             });
 const initialStateAdapter = locationsAdapter.getInitialState();
 
-export const extendedLocationApiSlice = apiSlice.injectEndpoints({
-                                                                     endpoints: builder => ({
-                                                                         getLocations: builder.query<EntityState<LocationProps>, void>({
-                                                                                                                                           query: () => '/locations',
-                                                                                                                                           transformResponse: (response: LocationProps[]) => {
-                                                                                                                                               return locationsAdapter.setAll(initialStateAdapter, response)
-                                                                                                                                           },
-                                                                                                                                           providesTags: (result, error, arg, meta) => result ? [
-                                                                                                                                               {
-                                                                                                                                                   type: 'Locations',
-                                                                                                                                                   if: 'LIST'
-                                                                                                                                               },
-                                                                                                                                               ...result.ids.map(id => ({
-                                                                                                                                                   type: 'Locations' as const,
-                                                                                                                                                   id
-                                                                                                                                               }))
-                                                                                                                                           ] : [{
-                                                                                                                                               type: 'Bookings',
-                                                                                                                                               id: 'LIST'
-                                                                                                                                           }]
-                                                                                                                                       }),
-                                                                         getLocationById: builder.query<LocationProps | null | undefined, string | undefined>({
-                                                                                                                                                                  query: id => `locations/?id=${id}`,
-                                                                                                                                                                  transformResponse: (response: LocationProps[], meta, arg) => {
-                                                                                                                                                                      return response.at(0);
-                                                                                                                                                                  },
-                                                                                                                                                                  providesTags: (result, error, id) => [{
-                                                                                                                                                                      type: 'Locations',
-                                                                                                                                                                      id
-                                                                                                                                                                  }]
-                                                                                                                                                              }),
-                                                                         addNewLocation: builder.mutation({
-                                                                                                              query: initialLocations => ({
-                                                                                                                  url: '/locations',
-                                                                                                                  method: 'POST',
-                                                                                                                  body: {
-                                                                                                                      ...initialLocations
-                                                                                                                  }
-                                                                                                              }),
-                                                                                                              invalidatesTags: ['Locations']
-                                                                                                          })
-                                                                     })
-                                                                 });
+export const extendedLocationApiSlice = apiSlice
+    .injectEndpoints(
+        {
+            endpoints: builder => ({
+                getLocations: builder.query<EntityState<LocationProps>, void>(
+                    {
+                        query: () => '/locations',
+                        transformResponse: (response: LocationProps[]) => {
+                            return locationsAdapter.setAll(initialStateAdapter, response)
+                        },
+                        providesTags: (result, error, arg, meta) => result ? [
+                            {
+                                type: 'Locations',
+                                if: 'LIST'
+                            },
+                            ...result.ids.map(id => ({
+                                type: 'Locations' as const,
+                                id
+                            }))
+                        ] : [{
+                            type: 'Bookings',
+                            id: 'LIST'
+                        }]
+                    }),
+                getLocationById: builder.query<LocationProps | null | undefined, string | undefined>(
+                    {
+                        query: id => `locations/?id=${id}`,
+                        transformResponse: (response: LocationProps[], meta, arg) => {
+                            return response.at(0);
+                        },
+                        providesTags: (result, error, id) => [{
+                            type: 'Locations',
+                            id
+                        }]
+                    }),
+                addNewLocation: builder.mutation(
+                    {
+                        query: initialLocations => ({
+                            url: '/locations',
+                            method: 'POST',
+                            body: {
+                                ...initialLocations
+                            }
+                        }),
+                        invalidatesTags: ['Locations']
+                    })
+            })
+        });
 export const {
     useAddNewLocationMutation,
     useGetLocationByIdQuery,
