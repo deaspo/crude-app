@@ -50,9 +50,6 @@ export const LocationsPage = () => {
     error,
   } = useGetBookingsByLocationIdQuery(selectedLocationId);
 
-  if (!currentLocation) {
-  } else {
-  }
   const locationInfoMessage: string = currentLocation
     ? `Bookings available in ${currentLocation.city}, ${currentLocation.country}`
     : "No available bookings";

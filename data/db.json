@@ -121,8 +121,8 @@
       "bookingPrice": 5,
       "bookingLocationId": "hu_bu_budapest",
       "reactions": {
-        "thumbsUp": 3,
-        "thumbsDown": 1
+        "thumbsUp": 5,
+        "thumbsDown": 7
       },
       "postedDate": "2023-02-19T18:21:27.989Z"
     },
