@@ -5,30 +5,13 @@ import { Fab, ListItemIcon, MenuItem, Paper, Popover } from "@mui/material";
 import { BookingsList } from "components/bookings-list";
 import { Button, NavBar, PageFooter } from "components/controls";
 
-import {
-  AddBookingForm,
-  EditBookingForm,
-  LocationAddForm,
-} from "components/dialog-forms";
-import {
-  BookingProps,
-  LocationProps,
-  useDeleteBookingMutation,
-} from "features";
+import { AddBookingForm, EditBookingForm, LocationAddForm } from "components/dialog-forms";
+import { BookingProps, LocationProps, useDeleteBookingMutation } from "features";
 import React, { useRef, useState } from "react";
-import {
-  Dialog,
-  DialogBody,
-  DialogFooter,
-  DialogHeader,
-  DialogModal,
-} from "../../dialog";
+import { useNavigate } from "react-router-dom";
+import { Dialog, DialogBody, DialogFooter, DialogHeader, DialogModal } from "../../dialog";
 
-import {
-  AddText,
-  bookingsPageClasses,
-  FabContainer,
-} from "./bookings-page-styles";
+import { AddText, bookingsPageClasses, FabContainer } from "./bookings-page-styles";
 
 export const BookingsPage = () => {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
@@ -36,6 +19,7 @@ export const BookingsPage = () => {
   const id = open ? "simple-popover" : undefined;
   const [deleteBooking] = useDeleteBookingMutation();
   const formID: string = "addLocationForm";
+  const navigate = useNavigate();
 
   const [pageTitle, setPageTitle] = useState<string>("Bookings");
   const [openAddDialog, setOpenAddDialog] = useState(false);
@@ -117,59 +101,63 @@ export const BookingsPage = () => {
     }
   };
 
+  const bookItemClick = (bookId: string) => {
+    navigate('/bookings/' + bookId);
+  }
+
   const BookingListPage: JSX.Element = (
-    <>
-      <BookingsList handleClickMore={handleClickMore} />
-      <FabContainer
-        className={bookingsPageClasses.fabContainer}
-        data-testid="fab-container"
-      >
-        <Fab
-          sx={{ bottom: "auto", position: "relative", right: "auto" }}
-          component="span"
-          variant="extended"
-          size="large"
-          color="info"
-          onClick={handleOpenAddDialog}
+      <>
+        <BookingsList handleClickMore={handleClickMore} onItemClick={bookItemClick}/>
+        <FabContainer
+            className={bookingsPageClasses.fabContainer}
+            data-testid="fab-container"
         >
-          <AddText
-            className={bookingsPageClasses.addText}
-            data-testid="fab-icon"
+          <Fab
+              sx={{ bottom: "auto", position: "relative", right: "auto" }}
+              component="span"
+              variant="extended"
+              size="large"
+              color="info"
+              onClick={handleOpenAddDialog}
           >
-            <AddIcon />
-          </AddText>
-          Add booking
-        </Fab>
-      </FabContainer>
-      {open && (
-        <Popover
-          id={id}
-          open={open}
-          anchorEl={anchorEl}
-          onClose={handleClose}
-          anchorOrigin={{
-            vertical: "bottom",
-            horizontal: "left",
-          }}
-          marginThreshold={0}
-        >
-          <Paper onClick={handleClose}>
-            <MenuItem onClick={handleOpenEditDialog}>
-              <ListItemIcon>
-                <EditIcon />
-              </ListItemIcon>
-              <div>Update</div>
-            </MenuItem>
-            <MenuItem onClick={handleDeleteBooking}>
-              <ListItemIcon>
-                <DeleteIcon />
-              </ListItemIcon>
-              <div>Delete</div>
-            </MenuItem>
-          </Paper>
-        </Popover>
-      )}
-    </>
+            <AddText
+                className={bookingsPageClasses.addText}
+                data-testid="fab-icon"
+            >
+              <AddIcon/>
+            </AddText>
+            Add booking
+          </Fab>
+        </FabContainer>
+        {open && (
+            <Popover
+                id={id}
+                open={open}
+                anchorEl={anchorEl}
+                onClose={handleClose}
+                anchorOrigin={{
+                  vertical: "bottom",
+                  horizontal: "left"
+                }}
+                marginThreshold={0}
+            >
+              <Paper onClick={handleClose}>
+                <MenuItem onClick={handleOpenEditDialog}>
+                  <ListItemIcon>
+                    <EditIcon/>
+                  </ListItemIcon>
+                  <div>Update</div>
+                </MenuItem>
+                <MenuItem onClick={handleDeleteBooking}>
+                  <ListItemIcon>
+                    <DeleteIcon/>
+                  </ListItemIcon>
+                  <div>Delete</div>
+                </MenuItem>
+              </Paper>
+            </Popover>
+        )}
+      </>
   );
 
   const AddNewBookingPage: JSX.Element = (

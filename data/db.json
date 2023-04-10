@@ -121,7 +121,7 @@
       "bookingPrice": 5,
       "bookingLocationId": "hu_bu_budapest",
       "reactions": {
-        "thumbsUp": 5,
+        "thumbsUp": 6,
         "thumbsDown": 7
       },
       "postedDate": "2023-02-19T18:21:27.989Z"
@@ -204,8 +204,8 @@
       "bookingPrice": 600,
       "bookingLocationId": "fr_idf_paris",
       "reactions": {
-        "thumbsUp": 2,
-        "thumbsDown": 0
+        "thumbsUp": 4,
+        "thumbsDown": 4
       },
       "postedDate": "2023-02-19T18:12:02.784Z"
     },
